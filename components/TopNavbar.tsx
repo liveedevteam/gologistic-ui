@@ -1,12 +1,12 @@
-import { useRouter } from 'next/router'
 import React from 'react'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function TopNavbar({
     toggleSidebar
 }: {
     toggleSidebar: () => void
 }) {
-    const router = useRouter()
+    const { logout } = useAuth()
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark border-bottom">
             <div className='container-fluid'>
@@ -14,10 +14,7 @@ export default function TopNavbar({
                     <i className="bi bi-list"></i>
                 </button>
                 {/* Logout button */}
-                <button className="btn btn-dark ms-auto" onClick={() => {
-                    window.localStorage.removeItem('token')
-                    router.push('/login')
-                }}>
+                <button className="btn btn-dark ms-auto" onClick={logout}>
                     <i className="bi bi-box-arrow-right"></i>
                 </button>
             </div>

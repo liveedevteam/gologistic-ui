@@ -1,48 +1,15 @@
 import React from 'react';
 import Head from 'next/head';
-import axios from 'axios';
-import { useRouter } from 'next/router';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
-    const router = useRouter();
+    const { login } = useAuth();
 
-    const login = async (e: { preventDefault: () => void; }) => {
+    const submitLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(email)) {
-            alert('Invalid email address');
-            return;
-        }
-        if (password.length < 6) {
-            alert('Password must be at least 6 characters');
-            return
-        }
-        const url = 'https://loops-bookings-api.loops-transport.com:444/api/auths/login/email-password';
-        const body = {
-            email,
-            password
-        }
-        const headers = {
-            'Content-Type': 'application/json'
-        }
-
-        try {
-            const res = await axios.post(url, body, { headers });
-            const { data } = res.data;
-            window.localStorage.setItem('token', data.accessToken);
-            router.push('/dashboard');
-        } catch (error: any) {
-            console.error(error);
-            let message = ''
-            if (error.response) {
-                message = `[${error.response.status}] ${error.response.data.msg}`;
-            } else {
-                message = error.msg;
-            }
-            alert(message);
-        }
+        login(email, password);
     };
 
     return (
@@ -58,7 +25,7 @@ export default function LoginPage() {
                                 <h1 className='card-title text-center mb-0'>Login</h1>
                             </div>
                             <div className="card-body">
-                                <form onSubmit={login}>
+                                <form onSubmit={submitLogin}>
                                     <div className="input-group mb-3">
                                         <span className="input-group-text" id="email-addon">
                                             <i className="bi bi-envelope"></i>
