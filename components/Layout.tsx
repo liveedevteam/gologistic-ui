@@ -22,9 +22,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <TopNavbar toggleSidebar={toggleSidebar} />
         <div className='m-3'></div>
         <div className='container'>
-          <i className="bi bi-arrow-left" onClick={() => {
+          {router.pathname !== '/dashboard' && (<i className="bi bi-arrow-left" onClick={() => {
             router.back();
-          }}></i>
+          }}></i>)}
         </div>
         <div className='m-3'></div>
         <div className="container-fluid">

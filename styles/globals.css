@@ -38,7 +38,7 @@ body {
     margin-left: 0;
   }
   #wrapper.toggled #sidebar-wrapper {
-    margin-left: -250px;
+    margin-left: -350px;
   }
   #page-content-wrapper {
     min-width: 0;
