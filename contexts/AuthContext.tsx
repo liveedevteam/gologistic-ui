@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             alert('Password must be at least 6 characters');
             return
         }
-        const url = 'https://loops-bookings-api.loops-transport.com:444/api/auths/login/email-password';
+        const url = process.env.NEXT_PUBLIC_API + '/auths/login';
         const body = {
             email,
             password
@@ -36,9 +36,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         try {
             const res = await axios.post(url, body, { headers });
-            const { data } = res.data;
+            const { data } = res;
             setIsAuthenticated(true);
-            window.localStorage.setItem('token', data.accessToken);
+            window.localStorage.setItem('token', data.token);
             router.push('/dashboard');
         } catch (error: any) {
             console.error(error);

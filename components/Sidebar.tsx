@@ -17,11 +17,26 @@ export default function Sidebar({
             href: '/dashboard/parcel-planning',
             icon: 'bi bi-box'
         },
-        // {
-        //     name: 'พัสดุ',
-        //     href: '/dashboard/parcel-management',
-        //     icon: 'bi bi-archive'
-        // },
+        {
+            name: 'น้ำหนัก',
+            href: '/dashboard/weight',
+            icon: 'bi bi-ubuntu'
+        },
+        {
+            name: 'คลัง',
+            href: '/dashboard/stock',
+            icon: 'bi bi-house-check'
+        },
+        {
+            name: 'STD',
+            href: '/dashboard/std',
+            icon: 'bi bi-paperclip'
+        },
+        {
+            name: 'ราคาน้ำมัน',
+            href: '/dashboard/oil-price',
+            icon: 'bi bi-currency-dollar'
+        }
     ]
     return (
         <>
