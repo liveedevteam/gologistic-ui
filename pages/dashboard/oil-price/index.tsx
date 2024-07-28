@@ -43,9 +43,11 @@ export default function OilPrice() {
             <div className="col-12">
               {!isLoading && <TableData
                 data={oilPrice}
+                setData={setOilPrice}
                 type={`oilPrice`}
                 page={page}
                 setPage={setPage}
+                fetchData={fetchOilPrice}
               />}
             </div>
           </div>

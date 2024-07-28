@@ -1,16 +1,13 @@
 import React from 'react'
 
-export default function Loading() {
+const Loading = () => {
     return (
-        <>
-            {/* Bootstrap fool page loading I need loading to centralize from vertical and horizontal position top 0*/}
-            <div className="d-flex justify-content-center align-items-center"
-                style={{ height: '100vh' }}
-            >
-                <div className="spinner-border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </div>
+        <div className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center" style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 1050 }}>
+            <div className="spinner-border header-main" role="status">
+                <span className="visually-hidden">Loading...</span>
             </div>
-        </>
-    )
-}
+        </div>
+    );
+};
+
+export default Loading;

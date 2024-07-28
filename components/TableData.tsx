@@ -5,17 +5,20 @@ import Loading from './Loading'
 
 export default function TableData(props: {
   data: any,
+  setData: any,
   type: string,
   page?: number,
-  setPage?: any
+  setPage?: any,
+  fetchData?: any
 }) {
   const [isLoading, setIsLoading] = React.useState(true)
   const [pages, setPages] = React.useState([1])
   const {
     data,
+    setData,
     type
   } = props || null
-  const buttonText = React.useState('')
+  const [searchText, setSearchText] = React.useState('')
   const router = useRouter()
 
   const getPages = (data: any) => {
@@ -31,7 +34,7 @@ export default function TableData(props: {
   }
 
   useEffect(() => {
-    if (data && data.result && data.result[0]) {
+    if (data && data.result && data.result[0] && searchText === '') {
       getPages(data)
       setTimeout(() => {
         setIsLoading(false)
@@ -51,8 +54,18 @@ export default function TableData(props: {
             <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่ม
           </button>
         </div>
-        <div className='m-4'></div>
-        <SearchButton />
+        {
+          type !== 'oilPrice' && <>
+            <div className='m-4'></div>
+            <SearchButton
+              data={data}
+              setData={setData}
+              searchText={searchText}
+              setSearchText={setSearchText}
+              fetchData={props.fetchData}
+            />
+          </>
+        }
         <div className='m-4'></div>
         <div className='table-responsive'>
           <table className="table table-striped">

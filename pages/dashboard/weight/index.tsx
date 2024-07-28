@@ -47,9 +47,11 @@ export default function Weights() {
               <div className="col-12">
                 {!isLoading && <TableData
                   data={data}
+                  setData={setData}
                   type={`weight`}
                   page={page}
                   setPage={setPage}
+                  fetchData={fetchData}
                 />}
               </div>
             </div>

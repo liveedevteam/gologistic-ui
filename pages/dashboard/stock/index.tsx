@@ -43,9 +43,11 @@ export default function Stocks() {
             <div className="col-12">
               {!isLoading && <TableData
                 data={data}
+                setData={setData}
                 type={`stock`}
                 page={page}
                 setPage={setPage}
+                fetchData={fetchData}
               />}
             </div>
           </div>

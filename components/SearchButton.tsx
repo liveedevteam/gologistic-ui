@@ -1,7 +1,39 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-export default function SearchButton() {
-    const [searchText, setSearchText] = React.useState('')
+export default function SearchButton(props: {
+    data: any,
+    setData: any,
+    searchText: string,
+    setSearchText: any,
+    fetchData?: any
+}) {
+    const {
+        data,
+        setData,
+        searchText,
+        setSearchText,
+        fetchData
+    } = props || null
+
+    const searchTextByPeaCode = async () => {
+        if (searchText === '') {
+            fetchData()
+        } else {    
+            const newData = { ...props.data }
+            const result = props.data.result.filter((item: any) => {
+                return item.peaCode.includes(searchText)
+            })
+            newData.result = result
+            setData(newData)
+        }
+    }
+
+    useEffect(() => {
+        if (searchText === '') {
+            fetchData()
+        }
+    }, [searchText])
+
     return (
         <div className="input-group mb-3">
             <input
@@ -11,9 +43,7 @@ export default function SearchButton() {
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
             />
-            <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={() => {
-
-            }}>
+            <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={searchTextByPeaCode}>
                 <i className="bi bi-search"></i>
             </button>
         </div>
