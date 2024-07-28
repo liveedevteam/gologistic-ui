@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             alert('Password must be at least 6 characters');
             return
         }
-        const url = process.env.NEXT_PUBLIC_API + '/auths/login';
+        const url = process.env.NEXT_PUBLIC_API_URL + '/auths/login';
         const body = {
             email,
             password

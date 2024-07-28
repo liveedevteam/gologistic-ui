@@ -6,7 +6,7 @@ import React, { useEffect } from 'react'
 export default function OilPrice() {
   const [oilPrice, setOilPrice] = React.useState(null) as any;
   const [page, setPage] = React.useState(1)
-  const [limit, setLimit] = React.useState(10)
+  const [limit, setLimit] = React.useState(25)
   const [isLoading, setIsLoading] = React.useState(true)
 
   const fetchOilPrice = async () => {
@@ -18,6 +18,10 @@ export default function OilPrice() {
       console.log(error)
     }
   }
+
+  useEffect(() => {
+    fetchOilPrice()
+  }, [page])
 
   useEffect(() => {
     if (oilPrice && oilPrice.result && oilPrice.result[0]) {
@@ -37,7 +41,12 @@ export default function OilPrice() {
           <div className='m-4'></div>
           <div className="row">
             <div className="col-12">
-              {!isLoading && <TableData data={oilPrice} />}
+              {!isLoading && <TableData
+                data={oilPrice}
+                type={`oilPrice`}
+                page={page}
+                setPage={setPage}
+              />}
             </div>
           </div>
         </div>
