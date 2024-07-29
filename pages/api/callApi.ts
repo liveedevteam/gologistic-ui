@@ -59,3 +59,57 @@ export const importData = async (type: string, file: any) => {
     return err;
   }
 };
+
+export const getDataById = async (type: string, id: string) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${type}s/${id}`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.get(url, { headers });
+    return res.data;
+  } catch (error: any) {
+    console.error(error);
+    let err = error;
+    if (error.response) {
+      err = `[${error.response.status}] ${error.response.data.msg}`;
+    }
+    return err;
+  }
+};
+
+export const postData = async (type: string, data: any) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${type}s`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.post(url, data, { headers });
+    return res.data;
+  } catch (error: any) {
+    console.error(error);
+    let err = error;
+    if (error.response) {
+      err = `[${error.response.status}] ${error.response.data.msg}`;
+    }
+    return err;
+  }
+}
+
+export const putData = async (type: string, id: string, data: any) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${type}s/${id}`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.put(url, data, { headers });
+    return res.data;
+  } catch (error: any) {
+    console.error(error);
+    let err = error;
+    if (error.response) {
+      err = `[${error.response.status}] ${error.response.data.msg}`;
+    }
+    return err;
+  }
+}

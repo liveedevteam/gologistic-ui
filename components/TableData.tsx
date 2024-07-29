@@ -62,7 +62,7 @@ export default function TableData(props: {
     <>
       <div className='d-flex flex-row-reverse'>
         <button className="btn btn-primary" onClick={() => {
-          const path = `/dashboard/${type}/create`
+          const path = `/dashboard/${type}/manage?mode=add`
           router.push(path)
         }}>
           <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่ม
@@ -160,7 +160,7 @@ export default function TableData(props: {
                   }
                   <td>
                     <button className="btn btn-outline-primary" onClick={() => {
-                      router.push(`/dashboard/oil-price/${item._id}`)
+                      router.push(`/dashboard/${type}/manage?mode=edit&id=${item._id}`)
                     }}>
                       <i className="bi bi-eye"></i>
                     </button>
