@@ -15,6 +15,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [token, setToken] = useState<string | null>(null);
 
+    const verifyToken = async (token: string) => {
+        const url = process.env.NEXT_PUBLIC_API_URL + '/auths/verify';
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+        try {
+            await axios.get(url, { headers });
+            setIsAuthenticated(true);
+        } catch (error: any) {
+            console.error('Token verification failed:', error);
+            setIsAuthenticated(false);
+            window.localStorage.removeItem('token');
+        }
+    };
+
     const login = async (email: string, password: string) => {
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         if (!emailRegex.test(email)) {
@@ -39,6 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             const { data } = res;
             setIsAuthenticated(true);
             window.localStorage.setItem('token', data.token);
+            setToken(data.token);
             router.push('/dashboard');
         } catch (error: any) {
             console.error(error);
@@ -55,26 +72,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         window.localStorage.removeItem('token');
+        setIsAuthenticated(false);
+        setToken(null);
         router.push('/login');
     };
 
     useEffect(() => {
-        setTimeout(() => {
-            setToken(window.localStorage.getItem('token'));
-        }, 100);
+        const storedToken = window.localStorage.getItem('token');
+        if (storedToken) {
+            setToken(storedToken);
+        }
     }, []);
 
     useEffect(() => {
-        // Simulate an async authentication check
-        setTimeout(() => {
-            // Example: set it to true for authenticated and false for unauthenticated
-            if (token) {
-                setIsAuthenticated(true);
+        if (token) {
+            verifyToken(token);
+        } else {
+            setIsAuthenticated(false);
+        }
+    }, [token]);
+
+    useEffect(() => {
+        const handleRouteChange = () => {
+            const storedToken = window.localStorage.getItem('token');
+            if (storedToken) {
+                verifyToken(storedToken);
             } else {
                 setIsAuthenticated(false);
             }
-        }, 1000);
-    }, [token]);
+        };
+
+        router.events.on('routeChangeStart', handleRouteChange);
+
+        return () => {
+            router.events.off('routeChangeStart', handleRouteChange);
+        };
+    }, []);
 
     return (
         <AuthContext.Provider value={{ isAuthenticated, login, logout }}>

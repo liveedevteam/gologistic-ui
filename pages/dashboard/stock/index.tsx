@@ -41,14 +41,14 @@ export default function Stocks() {
           <div className='m-4'></div>
           <div className="row">
             <div className="col-12">
-              {!isLoading && <TableData
+              <TableData
                 data={data}
                 setData={setData}
                 type={`stock`}
                 page={page}
                 setPage={setPage}
                 fetchData={fetchData}
-              />}
+              />
             </div>
           </div>
         </div>

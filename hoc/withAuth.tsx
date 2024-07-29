@@ -1,4 +1,3 @@
-// hoc/withAuth.tsx
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
 import { useEffect, ComponentType } from 'react';

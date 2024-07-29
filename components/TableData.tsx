@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { useRouter } from 'next/router'
 import SearchButton from './SearchButton'
 import Loading from './Loading'
+import { importData } from '@/pages/api/callApi'
 
 export default function TableData(props: {
   data: any,
@@ -16,7 +17,8 @@ export default function TableData(props: {
   const {
     data,
     setData,
-    type
+    type,
+    fetchData
   } = props || null
   const [searchText, setSearchText] = React.useState('')
   const router = useRouter()
@@ -33,8 +35,22 @@ export default function TableData(props: {
     return pagesArray
   }
 
+  const handleFileChange = async (e: any) => {
+    const file = e.target.files[0]
+    setIsLoading(true)
+    const uploadConfirm = confirm('Are you sure you want to import this file?')
+    if (uploadConfirm) {
+      try {
+        await importData(type, file)
+        fetchData()
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
   useEffect(() => {
-    if (data && data.result && data.result[0] && searchText === '') {
+    if (data && data.result && searchText === '') {
       getPages(data)
       setTimeout(() => {
         setIsLoading(false)
@@ -42,31 +58,43 @@ export default function TableData(props: {
     }
   }, [data])
 
-  if (isLoading) return <Loading />
-  else
-    return (
-      <>
-        <div className='d-flex flex-row-reverse'>
-          <button className="btn btn-primary" onClick={() => {
-            const path = `/dashboard/${type}/create`
-            router.push(path)
-          }}>
-            <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่ม
-          </button>
-        </div>
-        {
-          type !== 'oilPrice' && <>
-            <div className='m-4'></div>
-            <SearchButton
-              data={data}
-              setData={setData}
-              searchText={searchText}
-              setSearchText={setSearchText}
-              fetchData={props.fetchData}
+  return (
+    <>
+      <div className='d-flex flex-row-reverse'>
+        <button className="btn btn-primary" onClick={() => {
+          const path = `/dashboard/${type}/create`
+          router.push(path)
+        }}>
+          <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่ม
+        </button>
+        <div className='m-2'></div>
+        <button className="btn btn-primary">
+          <label className="btn btn-primary" htmlFor="fileInput">
+            <input
+              type="file"
+              id="fileInput"
+              style={{ display: 'none' }}
+              onChange={handleFileChange}
             />
-          </>
-        }
-        <div className='m-4'></div>
+            <i className="bi bi-file-earmark-arrow-down"></i>&nbsp;&nbsp;Import Excel
+          </label>
+        </button>
+      </div>
+      {
+        type !== 'oilPrice' && <>
+          <div className='m-4'></div>
+          <SearchButton
+            data={data}
+            setData={setData}
+            searchText={searchText}
+            setSearchText={setSearchText}
+            fetchData={props.fetchData}
+          />
+        </>
+      }
+      <div className='m-4'></div>
+      {isLoading && <Loading />}
+      {!isLoading && data && data.result && data.result[0] && <>
         <div className='table-responsive'>
           <table className="table table-striped">
             <tbody className="table-light">
@@ -98,7 +126,7 @@ export default function TableData(props: {
                 </tr>
               }
               {data.result.map((item: any, index: number) => {
-                console.log(item)
+                // console.log(item)
                 if (type === 'oilPrice') {
                   return <tr key={index}>
                     <td>{item.type}</td>
@@ -170,6 +198,7 @@ export default function TableData(props: {
             </nav>
           </div>
         </div>
-      </>
-    )
+      </>}
+    </>
+  )
 }
