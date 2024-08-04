@@ -30,6 +30,10 @@ export default function ParcelCreate() {
                         <div className='m-4'></div>
                         <form onSubmit={submitForm}>
                             <div className="mb-3">
+                                <label htmlFor="date" className="form-label">ชื่อ</label>
+                                <input type="text" className="form-control" id="date" />
+                            </div>
+                            <div className="mb-3">
                                 <label htmlFor="date" className="form-label">วันที่</label>
                                 <input type="date" className="form-control" id="date" />
                             </div>

@@ -7,7 +7,7 @@ import { useEffect } from "react";
 
 const CreateSTD = () => {
     const router = useRouter();
-    const [isLoading, setIsLoading] = React.useState(true);
+    const [isLoading, setIsLoading] = React.useState(false);
     const [data, setData] = React.useState(null) as any;
     const {
         id,

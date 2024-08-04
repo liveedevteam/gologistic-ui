@@ -33,6 +33,26 @@ export default function ParcelPlanningDetail() {
       <div className="container">
         <div className="row">
           <div className="col-12">
+            <div className='d-flex flex-row-reverse'>
+              <button className="btn btn-primary" onClick={() => {
+                // const path = `/dashboard/${type}/manage?mode=add`
+                // router.push(path)
+              }}>
+                <i className="bi bi-printer"></i>&nbsp;&nbsp;Print
+              </button>
+              <div className='m-2'></div>
+              <button className="btn btn-primary">
+                <label className="btn btn-primary" htmlFor="fileInput">
+                  <input
+                    type="file"
+                    id="fileInput"
+                    style={{ display: 'none' }}
+                    // onChange={handleFileChange}
+                  />
+                  <i className="bi bi-file-earmark-arrow-down"></i>&nbsp;&nbsp;Export Excel
+                </label>
+              </button>
+            </div>
             <h1>{planning.header}</h1>
             <div className='m-4'></div>
             <form onSubmit={submitForm}>
@@ -42,6 +62,14 @@ export default function ParcelPlanningDetail() {
                   type="date"
                   className="form-control"
                   value={dayjs(planning.date).format('YYYY-MM-DD')}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="date" className="form-label">วันที่</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={`ออกใบเสนอราคา`}
                 />
               </div>
               <div className="mb-3">
