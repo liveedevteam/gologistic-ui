@@ -164,7 +164,7 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.numberOfVehicles[parcel.type].number}
+                          // value={parcel.numberOfVehicles[parcel.type].number}
                           onChange={(e) => {
                             const value = e.target.value
                             const newParcels = [...planning.parcels]
