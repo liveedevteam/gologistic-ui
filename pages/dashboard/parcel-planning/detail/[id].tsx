@@ -1,109 +1,112 @@
 import Layout from '@/components/Layout'
+import Loading from '@/components/Loading'
+import { getDataById } from '@/pages/api/callApi'
 import dayjs from 'dayjs'
-import { headers } from 'next/headers'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 export default function ParcelPlanningDetail() {
-  const [planning, setPlanning] = React.useState({
-    header: 'แผนงานการขนส่งพัสดุ 20/12/2024',
-    date: '20/12/2024',
-    description: 'คำอธิบายแผนงานการขนส่งพัสดุ 20/12/2024'
-  })
-  const [parcels, setParcels] = React.useState([{
-    oilPrice: 20.34,
-    source: 'xxx',
-    destination1: 'xxx',
-    destination2: 'xxx',
-    parcelCode: 'x12',
-    parcelAmount: 120,
-    parcelType: 'xxx',
-    vehicleAmount: 1400,
-    ratio: 230,
-    proportion: 120,
-    receiveDate: '23/12/2024'
-  }])
+  const [planning, setPlanning] = React.useState(null) as any
   const router = useRouter()
+  const id = router.query.id
   const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    router.push('/dashboard/parcel-planning')
+    // router.push('/dashboard/parcel-planning')
   }
+  const [isLoading, setIsLoading] = React.useState(true)
+  const fetchData = async () => {
+    try {
+      console.log(`id`, id)
+      const type = 'planning'
+      const data = await getDataById(type, id as string)
+      console.log(`data`, data)
+      setPlanning(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  React.useEffect(() => {
+    if (planning) {
+      setIsLoading(false)
+    }
+  }, [planning])
+
+  React.useEffect(() => {
+    if (id) {
+      fetchData()
+    }
+  }, [id])
+
   return (
     <Layout>
-      <div className="container">
+      {isLoading && <Loading />}
+      {!isLoading && <div className="container">
         <div className="row">
           <div className="col-12">
+            <h1>อัพเดทแผนงาน</h1>
+            <div className='m-4'></div>
             <div className='d-flex flex-row-reverse'>
               <button className="btn btn-primary" onClick={() => {
-                // const path = `/dashboard/${type}/manage?mode=add`
-                // router.push(path)
+                window.open(planning.xlsxFilename, '_blank')
               }}>
-                <i className="bi bi-printer"></i>&nbsp;&nbsp;Print
-              </button>
-              <div className='m-2'></div>
-              <button className="btn btn-primary">
-                <label className="btn btn-primary" htmlFor="fileInput">
-                  <input
-                    type="file"
-                    id="fileInput"
-                    style={{ display: 'none' }}
-                    // onChange={handleFileChange}
-                  />
-                  <i className="bi bi-file-earmark-arrow-down"></i>&nbsp;&nbsp;Export Excel
-                </label>
+                <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;Download XLSX
               </button>
             </div>
-            <h1>{planning.header}</h1>
-            <div className='m-4'></div>
             <form onSubmit={submitForm}>
+              <div className="mb-3">
+                <label htmlFor="date" className="form-label">ชื่อ</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={planning.title}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPlanning({ ...planning, title: value })
+                  }}
+                />
+              </div>
               <div className="mb-3">
                 <label htmlFor="date" className="form-label">วันที่</label>
                 <input
                   type="date"
                   className="form-control"
                   value={dayjs(planning.date).format('YYYY-MM-DD')}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    setPlanning({ ...planning, date: value })
+                  }}
                 />
               </div>
-              <div className="mb-3">
-                <label htmlFor="date" className="form-label">วันที่</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={`ออกใบเสนอราคา`}
-                />
+              <div className='col-12'>
+                <div className="mb-3">
+                  <label htmlFor="parcel" className="form-label">ราคาน้ำมัน</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={planning.oilPricePerLiter}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setPlanning({ ...planning, oilPricePerLiter: value === '' ? 0 : parseInt(value) })
+                    }}
+                  />
+                </div>
               </div>
-              <div className="mb-3">
-                <label htmlFor="description" className="form-label">รายละเอียด</label>
-                <textarea
-                  className="form-control"
-                  rows={3}
-                >
-                  {planning.description}
-                </textarea>
-              </div>
-              {parcels.map((parcel, index) => (<div className='card mt-3' key={index}>
+              {planning.parcels.map((parcel: any, index: number) => (<div className='card mt-3' key={index}>
                 <div className='card-header'>
                   <div className='d-flex'>
                     <div className='flex-grow-1'>พัสดุ {index + 1}</div>
                     <div className='justify-content-end'>
                       {index > 0 && <i className="bi bi-trash" onClick={() => {
-                        setParcels(parcels.filter((_, i) => i !== index))
+                        const newParcels = [...planning.parcels]
+                        newParcels.splice(index, 1)
+                        setPlanning({ ...planning, parcels: newParcels })
                       }}></i>}
                     </div>
                   </div>
                 </div>
                 <div className='card-body'>
                   <div className='row'>
-                    <div className='col-12'>
-                      <div className="mb-3">
-                        <label htmlFor="parcel" className="form-label">ราคาน้ำมัน</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={parcel.oilPrice}
-                        />
-                      </div>
-                    </div>
                     <div className='col-6'>
                       <div className="mb-3">
                         <label htmlFor="parcel" className="form-label">ต้นทาง</label>
@@ -111,57 +114,81 @@ export default function ParcelPlanningDetail() {
                           type="text"
                           className="form-control"
                           value={parcel.source}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].source = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
                         />
                       </div>
                     </div>
                     <div className='col-6'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">ประเภทรถ</label>
+                        <select className='form-control'
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            const newNumberOfVehicles = [...parcel.numberOfVehicles]
+                            newParcels[index].type = parseInt(value)
+                            newParcels[index].numberOfVehicles = newNumberOfVehicles
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
+                        >
+                          <option value={0}>6 ล้อ</option>
+                          <option value={1}>10 ล้อ</option>
+                          <option value={2}>18 ล้อ</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className='col-6'>
+                      <div className="mb-3">
+                        <label htmlFor="amount" className="form-label">ปลายทาง</label>
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.parcelType}
+                          value={parcel.destination}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].destination = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
                         />
                       </div>
                     </div>
                     <div className='col-6'>
                       <div className="mb-3">
-                        <label htmlFor="amount" className="form-label">ปลายทาง 1</label>
+                        <label htmlFor="amount" className="form-label">จำนวนคันรถ</label>
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.destination1}
+                          value={parcel.numberOfVehicles[parcel.type].number}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            const newNumberOfVehicles = [...parcel.numberOfVehicles]
+                            newNumberOfVehicles[parcel.type].number = value === '' ? 0 : parseInt(value)
+                            newParcels[index].numberOfVehicles = newNumberOfVehicles
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
                         />
                       </div>
                     </div>
-                    <div className='col-6'>
-                      <div className="mb-3">
-                        <label htmlFor="amount" className="form-label">จำนวนรถ</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={parcel.vehicleAmount}
-                        />
-                      </div>
-                    </div>
-                    <div className='col-6'>
-                      <div className="mb-3">
-                        <label htmlFor="amount" className="form-label">ปลายทางที่ 2</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={parcel.destination2}
-                        />
-                      </div>
-                    </div>
-                    <div className='col-6'></div>
                     <div className='col-4'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">รหัสพัสดุ</label>
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.parcelCode}
+                          value={planning.parcels[index].peaCode}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].peaCode = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
                         />
                       </div>
                     </div>
@@ -171,7 +198,13 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.parcelAmount}
+                          value={parcel.quantity}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].quantity = value === '' ? 0 : parseInt(value)
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
                         />
                       </div>
                     </div>
@@ -181,7 +214,13 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.proportion}
+                          value={parcel.contract}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].contract = value
+                            setPlanning(newPlanning)
+                          }}
                         />
                       </div>
                     </div>
@@ -191,7 +230,13 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.proportion}
+                          value={parcel.budget}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].budget = value === '' ? 0 : parseInt(value)
+                            setPlanning(newPlanning)
+                          }}
                         />
                       </div>
                     </div>
@@ -202,6 +247,12 @@ export default function ParcelPlanningDetail() {
                           type="text"
                           className="form-control"
                           value={parcel.ratio}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].ratio = value === '' ? 0 : parseInt(value)
+                            setPlanning(newPlanning)
+                          }}
                         />
                       </div>
                     </div>
@@ -209,9 +260,15 @@ export default function ParcelPlanningDetail() {
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label>
                         <input
-                          type="text"
+                          type="date"
                           className="form-control"
-                          value={parcel.receiveDate}
+                          value={parcel.date}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].date = value
+                            setPlanning(newPlanning)
+                          }}
                         />
                       </div>
                     </div>
@@ -222,33 +279,45 @@ export default function ParcelPlanningDetail() {
               <div className='m-4'></div>
               <div className='d-flex justify-content-end'>
                 <button type="button" className="btn btn-primary" onClick={() => {
-                  setParcels([...parcels, {
-                    oilPrice: 0,
+                  const newParcels = [...planning.parcels]
+                  newParcels.push({
                     source: '',
-                    destination1: '',
-                    destination2: '',
-                    parcelCode: '',
-                    parcelAmount: 0,
-                    parcelType: '',
-                    vehicleAmount: 0,
-                    ratio: 0,
-                    proportion: 0,
-                    receiveDate: ''
-                  }])
+                    destination: '',
+                    distance: 0,
+                    peaCode: '',
+                    quantity: 0,
+                    numberOfVehicles: [
+                      {
+                        "type": "6 ล้อ",
+                        "number": 0
+                      },
+                      {
+                        "type": "10 ล้อ",
+                        "number": 0
+                      },
+                      {
+                        "type": "18 ล้อ",
+                        "number": 0
+                      }
+                    ],
+                    budget: 0,
+                    contract: '',
+                    date: '',
+                    type: 0,
+                    ratio: 0
+                  })
+                  setPlanning({ ...planning, parcels: newParcels })
                 }}>
                   <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่มรายการพัสดุ
                 </button>
               </div>
               <div className='m-4'></div>
-              <button type="submit" className="btn btn-primary">
-                {router.pathname.includes('create') ? <i className="bi bi-plus-circle"></i> : <i className="bi bi-pencil"></i>}
-                &nbsp;&nbsp;{router.pathname.includes('create') ? 'สร้างแผนงาน' : 'แก้ไขแผนงาน'}
-              </button>
+              <button type="submit" className="btn btn-primary"><i className="bi bi-plus-circle"></i>&nbsp;&nbsp;สร้างแผนงาน</button>
               <div className='m-4'></div>
             </form>
           </div>
         </div>
-      </div>
+      </div>}
     </Layout>
   )
 }

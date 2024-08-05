@@ -1,21 +1,73 @@
 import Layout from '@/components/Layout'
+import Loading from '@/components/Loading'
+import { getDatas } from '@/pages/api/callApi'
+import dayjs from 'dayjs'
+import buddhistEra from 'dayjs/plugin/buddhistEra';
+
+dayjs.extend(buddhistEra);
+import localeData from 'dayjs/plugin/localeData';
+import updateLocale from 'dayjs/plugin/updateLocale';
 import { useRouter } from 'next/router'
 import React from 'react'
 
-const defaultPlannings = [{
-    id: 1,
-    date: '20/12/2024',
-    description: 'แผนงานการขนส่งพัสดุ 20/12/2024',
-    status: 'กำลังเดินการ'
-}]
+import 'dayjs/locale/th';
+
+dayjs.extend(buddhistEra);
+dayjs.extend(localeData);
+dayjs.extend(updateLocale);
+
+dayjs.locale('th');
+
+dayjs.updateLocale('th', {
+    months: [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+    ]
+});
 
 export default function ParcelPlanning() {
-    const [plannings, setPlannings] = React.useState([...defaultPlannings])
+    const [plannings, setPlannings] = React.useState(null) as any
     const [searchText, setSearchText] = React.useState('')
+    const [isLoading, setIsLoading] = React.useState(true)
+    const [page, setPage] = React.useState(1)
+    const [limit, setLimit] = React.useState(25)
+
+    const fetchData = async () => {
+        try {
+            const url = `${process.env.NEXT_PUBLIC_API_URL}/plannings`
+            const data = await getDatas(url)
+            console.log(`data`, data)
+            setPlannings(data.result)
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    React.useEffect(() => {
+        if (searchText === '') {
+            fetchData()
+        }
+    }, [searchText])
+
+    React.useEffect(() => {
+        if (plannings && plannings[0]) {
+            setIsLoading(false)
+        }
+    }, [plannings])
+
+    React.useEffect(() => {
+        fetchData()
+    }, [page])
+
+    React.useEffect(() => {
+        fetchData()
+    }, [])
+
     const router = useRouter()
     return (<>
         <Layout>
-            <div className="container">
+            {isLoading && <Loading />}
+            {!isLoading && <div className="container">
                 <div className='m-3'></div>
                 <h1>แผนงานการขนส่งพัสดุ</h1>
                 <div className='m-4'></div>
@@ -32,18 +84,17 @@ export default function ParcelPlanning() {
                         {/* Input text with Search button */}
                         <div className="input-group mb-3">
                             <input
-                                type="text" 
-                                className="form-control" 
-                                placeholder="ค้นหาแผนงานด้วยเลขที่ กพ."     
+                                type="text"
+                                className="form-control"
+                                placeholder="ค้นหาแผนงานด้วยชื่อ."
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                             />
                             <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={() => {
                                 if (searchText === '') {
-                                    setPlannings([...defaultPlannings])
                                     return
                                 }
-                                const newPlannings = plannings.filter(planning => planning.id.toString().includes(searchText))
+                                const newPlannings = plannings.filter((planning: any) => planning.title.includes(searchText))
                                 setPlannings(newPlannings)
                             }}>
                                 <i className="bi bi-search"></i>
@@ -54,21 +105,21 @@ export default function ParcelPlanning() {
                             <table className="table table-striped">
                                 <tbody className="table-light">
                                     <tr className=''>
-                                        <td className=''>เลขที่ กพ.</td>
+                                        <td className=''>ชื่อ</td>
                                         <td className=''>วันที่</td>
-                                        <td>รายละเอียด</td>
+                                        <td>ราคาน้ำมัน</td>
                                         <td>สถานะ</td>
                                         <td>เพิ่มเติม</td>
                                     </tr>
-                                    {plannings.map((planning, index) => (
+                                    {plannings && plannings.map((planning: any, index: number) => (
                                         <tr className='' key={index}>
-                                            <td className=''>{planning.id}</td>
-                                            <td className=''>{planning.date}</td>
-                                            <td>{planning.description}</td>
+                                            <td className=''>{planning.title}</td>
+                                            <td className=''>{dayjs(planning.date as string).format('D MMMM BBBB')}</td>
+                                            <td>{planning.oilPricePerLiter * 0.01}</td>
                                             <td>{planning.status}</td>
                                             <td>
                                                 <button className="btn btn-outline-primary" onClick={() => {
-                                                    router.push('/dashboard/parcel-planning/detail/' + planning.id)
+                                                    router.push('/dashboard/parcel-planning/detail/' + planning._id)
                                                 }}>
                                                     <i className="bi bi-eye"></i>
                                                 </button>
@@ -80,7 +131,7 @@ export default function ParcelPlanning() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>}
         </Layout>
     </>)
 }
