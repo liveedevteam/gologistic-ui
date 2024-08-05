@@ -1,6 +1,6 @@
 import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
-import { getDataById } from '@/pages/api/callApi'
+import { getDataById, getMediaDataById } from '@/pages/api/callApi'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React from 'react'
@@ -47,8 +47,10 @@ export default function ParcelPlanningDetail() {
             <h1>อัพเดทแผนงาน</h1>
             <div className='m-4'></div>
             <div className='d-flex flex-row-reverse'>
-              <button className="btn btn-primary" onClick={() => {
-                window.open(planning.xlsxFilename, '_blank')
+              <button className="btn btn-primary" onClick={async() => {
+                const resUrl = await getMediaDataById('planning', id as string) as any
+                console.log(`resUrl`, resUrl)
+                window.open(resUrl.url, '_blank')
               }}>
                 <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;Download XLSX
               </button>
@@ -194,17 +196,39 @@ export default function ParcelPlanningDetail() {
                     </div>
                     <div className='col-4'>
                       <div className="mb-3">
+                        <label htmlFor="amount" className="form-label">รายการพัสดุที่ขนส่ง</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={planning.parcels[index].description}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].peaCode = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='col-4'>
+                      <div className="mb-3">
                         <label htmlFor="amount" className="form-label">จำนวนพัสดุ</label>
                         <input
                           type="text"
                           className="form-control"
                           value={parcel.quantity}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            const newParcels = [...planning.parcels]
-                            newParcels[index].quantity = value === '' ? 0 : parseInt(value)
-                            setPlanning({ ...planning, parcels: newParcels })
-                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className='col-4'>
+                      <div className="mb-3">
+                        <label htmlFor="amount" className="form-label">ระยะทาง (กิโลเมตร)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={parcel.distance}
+                          disabled={true}
                         />
                       </div>
                     </div>

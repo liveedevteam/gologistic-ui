@@ -115,7 +115,7 @@ export default function ParcelPlanning() {
                                         <tr className='' key={index}>
                                             <td className=''>{planning.title}</td>
                                             <td className=''>{dayjs(planning.date as string).format('D MMMM BBBB')}</td>
-                                            <td>{planning.oilPricePerLiter * 0.01}</td>
+                                            <td>{planning.oilPricePerLiter}</td>
                                             <td>{planning.status}</td>
                                             <td>
                                                 <button className="btn btn-outline-primary" onClick={() => {

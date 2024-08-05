@@ -113,3 +113,21 @@ export const putData = async (type: string, id: string, data: any) => {
     return err;
   }
 }
+
+export const getMediaDataById = async (type: string, id: string) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${type}s/media/${id}`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.get(url, { headers });
+    return res.data;
+  } catch (error: any) {
+    console.error(error);
+    let err = error;
+    if (error.response) {
+      err = `[${error.response.status}] ${error.response.data.msg}`;
+    }
+    return err;
+  }
+};
