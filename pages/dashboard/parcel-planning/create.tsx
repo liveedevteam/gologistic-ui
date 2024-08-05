@@ -129,8 +129,10 @@ export default function ParcelCreate() {
                                             <div className="mb-3">
                                                 <label htmlFor="amount" className="form-label">ประเภทรถ</label>
                                                 <select className='form-control'
+                                                    value={parcel.type}
                                                     onChange={(e) => {
                                                         const value = e.target.value
+                                                        console.log(`value`, value)
                                                         const newParcels = [...planning.parcels]
                                                         const newNumberOfVehicles = [...parcel.numberOfVehicles]
                                                         newParcels[index].type = parseInt(value)
