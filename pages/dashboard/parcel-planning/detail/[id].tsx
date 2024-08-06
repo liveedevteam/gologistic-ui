@@ -333,7 +333,7 @@ export default function ParcelPlanningDetail() {
                           type="text"
                           className="form-control"
                           value={parcel.distance}
-
+                          disabled={true}
                         />
                       </div>
                     </div>
