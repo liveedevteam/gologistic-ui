@@ -286,7 +286,7 @@ export default function ParcelCreate() {
                                                     onChange={(e) => {
                                                         const value = e.target.value
                                                         const newPlanning = { ...planning }
-                                                        newPlanning.parcels[index].budget = value === '' ? 0 : parseInt(value)
+                                                        newPlanning.parcels[index].budget = value as any
                                                         setPlanning(newPlanning)
                                                     }}
                                                 />
