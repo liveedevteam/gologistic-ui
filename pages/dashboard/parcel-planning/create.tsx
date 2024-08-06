@@ -1,6 +1,7 @@
 import Layout from '@/components/Layout'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
+import DatePicker from "react-datepicker";
 import { getStartAndStopPoints, postData } from '@/pages/api/callApi'
 
 export default function ParcelCreate() {
@@ -86,8 +87,8 @@ export default function ParcelCreate() {
                                 />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="date" className="form-label">วันที่</label>
-                                <input
+                                <label htmlFor="date" className="form-label">วันที่</label><br />
+                                {/* <input
                                     type="date"
                                     className="form-control"
                                     value={planning.date}
@@ -95,6 +96,14 @@ export default function ParcelCreate() {
                                         const value = e.target.value
                                         setPlanning({ ...planning, date: value })
                                     }}
+                                    pattern='[0-9]{4}-[0-9]{2}-[0-9]{2}'
+                                /> */}
+                                <DatePicker
+                                    selected={planning.date ? new Date(planning.date) : new Date()}
+                                    onChange={(date: any) => {
+                                        setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
+                                    }}
+                                    dateFormat="dd-MM-yyyy"
                                 />
                             </div>
                             <div className='col-12'>
@@ -301,17 +310,14 @@ export default function ParcelCreate() {
                                         </div>
                                         <div className='col-4'>
                                             <div className="mb-3">
-                                                <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label>
-                                                <input
-                                                    type="date"
-                                                    className="form-control"
-                                                    value={parcel.date}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value
-                                                        const newPlanning = { ...planning }
-                                                        newPlanning.parcels[index].date = value
-                                                        setPlanning(newPlanning)
+                                                <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label><br />
+                                                <DatePicker
+                                                    className='form-control'
+                                                    selected={planning.date ? new Date(planning.date) : new Date()}
+                                                    onChange={(date: any) => {
+                                                        setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
                                                     }}
+                                                    dateFormat="dd-MM-yyyy"
                                                 />
                                             </div>
                                         </div>

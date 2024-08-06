@@ -4,6 +4,7 @@ import { getDataById, getMediaDataById, getStartAndStopPoints, putData } from '@
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React from 'react'
+import DatePicker from "react-datepicker";
 
 export default function ParcelPlanningDetail() {
   const [planning, setPlanning] = React.useState(null) as any
@@ -85,8 +86,8 @@ export default function ParcelPlanningDetail() {
                 />
               </div>
               <div className="mb-3">
-                <label htmlFor="date" className="form-label">วันที่</label>
-                <input
+                <label htmlFor="date" className="form-label">วันที่</label><br />
+                {/* <input
                   type="date"
                   className="form-control"
                   value={dayjs(planning.date).format('YYYY-MM-DD')}
@@ -94,6 +95,13 @@ export default function ParcelPlanningDetail() {
                     const value = e.target.value
                     setPlanning({ ...planning, date: value })
                   }}
+                /> */}
+                <DatePicker
+                  selected={planning.date ? new Date(planning.date) : new Date()}
+                  onChange={(date: any) => {
+                    setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
+                  }}
+                  dateFormat="dd-MM-yyyy"
                 />
               </div>
               <div className='col-12'>
@@ -246,6 +254,28 @@ export default function ParcelPlanningDetail() {
                         />
                       </div>
                     </div>
+                    <div className='col-6'>
+                      <div className="mb-3">
+                        <label htmlFor="amount" className="form-label">ราคากลาง</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={parcel.centralPrice}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
+                    <div className='col-6'>
+                      <div className="mb-3">
+                        <label htmlFor="amount" className="form-label">วงเงินประมาณการค่าขนส่ง</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={parcel.centralPrice * parcel.numberOfVehicles[parcel.type].number}
+                          disabled={true}
+                        />
+                      </div>
+                    </div>
                     <div className='col-4'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">รหัสพัสดุ</label>
@@ -333,7 +363,7 @@ export default function ParcelPlanningDetail() {
                           onChange={(e) => {
                             const value = e.target.value
                             const newPlanning = { ...planning }
-                            newPlanning.parcels[index].budget = value === '' ? 0 : parseInt(value)
+                            newPlanning.parcels[index].budget = value
                             setPlanning(newPlanning)
                           }}
                         />
@@ -357,8 +387,8 @@ export default function ParcelPlanningDetail() {
                     </div>
                     <div className='col-4'>
                       <div className="mb-3">
-                        <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label>
-                        <input
+                        <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label><br />
+                        {/* <input
                           type="date"
                           className="form-control"
                           value={parcel.date}
@@ -368,6 +398,13 @@ export default function ParcelPlanningDetail() {
                             newPlanning.parcels[index].date = value
                             setPlanning(newPlanning)
                           }}
+                        /> */}
+                        <DatePicker
+                          selected={planning.date ? new Date(planning.date) : new Date()}
+                          onChange={(date: any) => {
+                            setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
+                          }}
+                          dateFormat="dd-MM-yyyy"
                         />
                       </div>
                     </div>

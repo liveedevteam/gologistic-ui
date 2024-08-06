@@ -43,6 +43,23 @@ export default function ParcelPlanning() {
         }
     }
 
+    const convertStatus = (status: string) => {
+        switch (status) {
+            case 'draft':
+                return 'Draft'
+            case 'inProgress':
+                return 'แผนจ้างขนส่ง '
+            case 'proposal':
+                return 'ใบเสนอราคา '
+            case 'comparePrice':
+                return 'เปรียบเทียบราคา'
+            case 'completed':
+                return 'ขออนุมัติจ้าง'
+            default:
+                return ''
+        }
+    }
+
     React.useEffect(() => {
         if (searchText === '') {
             fetchData()
@@ -116,7 +133,7 @@ export default function ParcelPlanning() {
                                             <td className=''>{planning.title}</td>
                                             <td className=''>{dayjs(planning.date as string).format('D MMMM BBBB')}</td>
                                             <td>{planning.oilPricePerLiter}</td>
-                                            <td>{planning.status}</td>
+                                            <td>{convertStatus(planning.status)}</td>
                                             <td>
                                                 <button className="btn btn-outline-primary" onClick={() => {
                                                     router.push('/dashboard/parcel-planning/detail/' + planning._id)
