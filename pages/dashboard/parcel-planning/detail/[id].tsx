@@ -402,7 +402,9 @@ export default function ParcelPlanningDetail() {
                         <DatePicker
                           selected={planning.date ? new Date(planning.date) : new Date()}
                           onChange={(date: any) => {
-                            setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].date = date.toISOString().split('T')[0]
+                            setPlanning(newPlanning)
                           }}
                           dateFormat="dd-MM-yyyy"
                         />

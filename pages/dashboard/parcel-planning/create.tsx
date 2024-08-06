@@ -315,7 +315,9 @@ export default function ParcelCreate() {
                                                     className='form-control'
                                                     selected={planning.date ? new Date(planning.date) : new Date()}
                                                     onChange={(date: any) => {
-                                                        setPlanning({ ...planning, date: date.toISOString().split('T')[0] })
+                                                        const newParcels = [...planning.parcels]
+                                                        newParcels[index].date = date.toISOString().split('T')[0]
+                                                        setPlanning({ ...planning, parcels: newParcels })
                                                     }}
                                                     dateFormat="dd-MM-yyyy"
                                                 />
