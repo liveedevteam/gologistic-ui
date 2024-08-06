@@ -131,3 +131,21 @@ export const getMediaDataById = async (type: string, id: string) => {
     return err;
   }
 };
+
+export const getStartAndStopPoints = async (type: string) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/${type}s/location/start-stop`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.get(url, { headers });
+    return res.data;
+  } catch (error: any) {
+    console.error(error);
+    let err = error;
+    if (error.response) {
+      err = `[${error.response.status}] ${error.response.data.msg}`;
+    }
+    return err;
+  }
+}

@@ -1,7 +1,7 @@
 import Layout from '@/components/Layout'
 import { useRouter } from 'next/router'
-import React from 'react'
-import { postData } from '@/pages/api/callApi'
+import React, { useEffect } from 'react'
+import { getStartAndStopPoints, postData } from '@/pages/api/callApi'
 
 export default function ParcelCreate() {
     const [planning, setPlanning] = React.useState({
@@ -36,7 +36,24 @@ export default function ParcelCreate() {
             ratio: 0
         }]
     })
+    const [startPoints, setStartPoints] = React.useState([])
+    const [endPoints, setEndPoints] = React.useState([])
     const router = useRouter()
+
+    useEffect(() => {
+        const fetchStartPoints = async () => {
+            try {
+                const type = 'oil-price'
+                const data = await getStartAndStopPoints(type)
+                setStartPoints(data.startPoints)
+                setEndPoints(data.stopPoints)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        fetchStartPoints()
+    }, [])
+
     const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         console.log(`planning`, planning)
@@ -112,7 +129,7 @@ export default function ParcelCreate() {
                                         <div className='col-6'>
                                             <div className="mb-3">
                                                 <label htmlFor="parcel" className="form-label">ต้นทาง</label>
-                                                <input
+                                                {/* <input
                                                     type="text"
                                                     className="form-control"
                                                     value={parcel.source}
@@ -122,7 +139,18 @@ export default function ParcelCreate() {
                                                         newParcels[index].source = value
                                                         setPlanning({ ...planning, parcels: newParcels })
                                                     }}
-                                                />
+                                                /> */}
+                                                <select className='form-control'
+                                                    value={parcel.source}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        const newParcels = [...planning.parcels]
+                                                        newParcels[index].source = value
+                                                        setPlanning({ ...planning, parcels: newParcels })
+                                                    }}>
+                                                    <option value=''>เลือกต้นทาง</option>
+                                                    {startPoints && startPoints.map((point: any, index: number) => <option key={index} value={point}>{point}</option>)}
+                                                </select>
                                             </div>
                                         </div>
                                         <div className='col-6'>
@@ -149,7 +177,18 @@ export default function ParcelCreate() {
                                         <div className='col-6'>
                                             <div className="mb-3">
                                                 <label htmlFor="amount" className="form-label">ปลายทาง</label>
-                                                <input
+                                                <select className='form-control'
+                                                    value={parcel.destination}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value
+                                                        const newParcels = [...planning.parcels]
+                                                        newParcels[index].destination = value
+                                                        setPlanning({ ...planning, parcels: newParcels })
+                                                    }}>
+                                                    <option value=''>เลือกปลายทาง</option>
+                                                    {endPoints && endPoints.map((point: any, index: number) => <option key={index} value={point}>{point}</option>)}
+                                                </select>
+                                                {/* <input
                                                     type="text"
                                                     className="form-control"
                                                     value={parcel.destination}
@@ -159,7 +198,7 @@ export default function ParcelCreate() {
                                                         newParcels[index].destination = value
                                                         setPlanning({ ...planning, parcels: newParcels })
                                                     }}
-                                                />
+                                                /> */}
                                             </div>
                                         </div>
                                         <div className='col-6'>

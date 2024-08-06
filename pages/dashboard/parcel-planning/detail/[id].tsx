@@ -1,19 +1,23 @@
 import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
-import { getDataById, getMediaDataById } from '@/pages/api/callApi'
+import { getDataById, getMediaDataById, getStartAndStopPoints, putData } from '@/pages/api/callApi'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 export default function ParcelPlanningDetail() {
   const [planning, setPlanning] = React.useState(null) as any
+  const [startPoints, setStartPoints] = React.useState([])
+  const [endPoints, setEndPoints] = React.useState([])
+  const [isLoading, setIsLoading] = React.useState(true)
   const router = useRouter()
   const id = router.query.id
+
   const submitForm = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // router.push('/dashboard/parcel-planning')
   }
-  const [isLoading, setIsLoading] = React.useState(true)
+
   const fetchData = async () => {
     try {
       console.log(`id`, id)
@@ -21,6 +25,17 @@ export default function ParcelPlanningDetail() {
       const data = await getDataById(type, id as string)
       console.log(`data`, data)
       setPlanning(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchStartPoints = async () => {
+    try {
+      const type = 'oil-price'
+      const data = await getStartAndStopPoints(type)
+      setStartPoints(data.startPoints)
+      setEndPoints(data.stopPoints)
     } catch (error) {
       console.log(error)
     }
@@ -35,6 +50,7 @@ export default function ParcelPlanningDetail() {
   React.useEffect(() => {
     if (id) {
       fetchData()
+      fetchStartPoints()
     }
   }, [id])
 
@@ -47,7 +63,7 @@ export default function ParcelPlanningDetail() {
             <h1>อัพเดทแผนงาน</h1>
             <div className='m-4'></div>
             <div className='d-flex flex-row-reverse'>
-              <button className="btn btn-primary" onClick={async() => {
+              <button className="btn btn-primary" onClick={async () => {
                 const resUrl = await getMediaDataById('planning', id as string) as any
                 console.log(`resUrl`, resUrl)
                 window.open(resUrl.url, '_blank')
@@ -94,6 +110,25 @@ export default function ParcelPlanningDetail() {
                   />
                 </div>
               </div>
+              <div className='col-12'>
+                <div className="mb-3">
+                  <label htmlFor="parcel" className="form-label">สถานะ</label>
+                  <select className='form-control'
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setPlanning({ ...planning, status: value })
+                    }}
+                    value={planning.status}
+                    defaultChecked={planning.status}
+                  >
+                    <option value='draft'>Draft</option>
+                    <option value='inProgress'>แผนจ้างขนส่ง</option>
+                    <option value='proposal'>ใบเสนอราคา</option>
+                    <option value='comparePrice'>เปรียบเทียบราคา</option>
+                    <option value='completed'>ขออนุมัติจ้าง</option>
+                  </select>
+                </div>
+              </div>
               {planning.parcels.map((parcel: any, index: number) => (<div className='card mt-3' key={index}>
                 <div className='card-header'>
                   <div className='d-flex'>
@@ -112,7 +147,7 @@ export default function ParcelPlanningDetail() {
                     <div className='col-6'>
                       <div className="mb-3">
                         <label htmlFor="parcel" className="form-label">ต้นทาง</label>
-                        <input
+                        {/* <input
                           type="text"
                           className="form-control"
                           value={parcel.source}
@@ -122,7 +157,22 @@ export default function ParcelPlanningDetail() {
                             newParcels[index].source = value
                             setPlanning({ ...planning, parcels: newParcels })
                           }}
-                        />
+
+                        /> */}
+                        <select className='form-control'
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].source = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
+                          value={parcel.source}
+                          defaultChecked={parcel.source}
+                        >
+                          {startPoints.map((point: any, index: number) => (
+                            <option key={index} value={point}>{point}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className='col-6'>
@@ -137,6 +187,9 @@ export default function ParcelPlanningDetail() {
                             newParcels[index].numberOfVehicles = newNumberOfVehicles
                             setPlanning({ ...planning, parcels: newParcels })
                           }}
+                          value={parcel.type}
+                          defaultChecked={parcel.type}
+
                         >
                           <option value={0}>6 ล้อ</option>
                           <option value={1}>10 ล้อ</option>
@@ -147,7 +200,7 @@ export default function ParcelPlanningDetail() {
                     <div className='col-6'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">ปลายทาง</label>
-                        <input
+                        {/* <input
                           type="text"
                           className="form-control"
                           value={parcel.destination}
@@ -157,7 +210,22 @@ export default function ParcelPlanningDetail() {
                             newParcels[index].destination = value
                             setPlanning({ ...planning, parcels: newParcels })
                           }}
-                        />
+
+                        /> */}
+                        <select className='form-control'
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].destination = value
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}
+                          value={parcel.destination}
+                          defaultChecked={parcel.destination}
+                        >
+                          {endPoints.map((point: any, index: number) => (
+                            <option key={index} value={point}>{point}</option>
+                          ))}
+                        </select>
                       </div>
                     </div>
                     <div className='col-6'>
@@ -166,7 +234,7 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          // value={parcel.numberOfVehicles[parcel.type].number}
+                          value={parcel.numberOfVehicles[parcel.type].number}
                           onChange={(e) => {
                             const value = e.target.value
                             const newParcels = [...planning.parcels]
@@ -191,6 +259,7 @@ export default function ParcelPlanningDetail() {
                             newParcels[index].peaCode = value
                             setPlanning({ ...planning, parcels: newParcels })
                           }}
+
                         />
                       </div>
                     </div>
@@ -218,6 +287,12 @@ export default function ParcelPlanningDetail() {
                           type="text"
                           className="form-control"
                           value={parcel.quantity}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            const newPlanning = { ...planning }
+                            newPlanning.parcels[index].quantity = value === '' ? 0 : parseInt(value)
+                            setPlanning(newPlanning)
+                          }}
                         />
                       </div>
                     </div>
@@ -228,7 +303,7 @@ export default function ParcelPlanningDetail() {
                           type="text"
                           className="form-control"
                           value={parcel.distance}
-                          disabled={true}
+
                         />
                       </div>
                     </div>
@@ -336,7 +411,24 @@ export default function ParcelPlanningDetail() {
                 </button>
               </div>
               <div className='m-4'></div>
-              <button type="submit" className="btn btn-primary"><i className="bi bi-plus-circle"></i>&nbsp;&nbsp;สร้างแผนงาน</button>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                onClick={async () => {
+                  setIsLoading(true)
+                  try {
+                    await putData('planning', id as string, planning)
+                    alert('อัพเดทแผนงานเรียบร้อย')
+                    fetchData()
+                  } catch (error) {
+                    alert('อัพเดทแผนงานไม่สำเร็จ: ' + error)
+                  } finally {
+                    setIsLoading(false)
+                  }
+                }}
+              >
+                <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;อัพเดทแผนงาน
+              </button>
               <div className='m-4'></div>
             </form>
           </div>
