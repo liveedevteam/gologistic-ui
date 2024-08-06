@@ -400,7 +400,7 @@ export default function ParcelPlanningDetail() {
                           }}
                         /> */}
                         <DatePicker
-                          selected={planning.date ? new Date(planning.date) : new Date()}
+                          selected={parcel.date ? new Date(parcel.date) : new Date()}
                           onChange={(date: any) => {
                             const newPlanning = { ...planning }
                             newPlanning.parcels[index].date = date.toISOString().split('T')[0]

@@ -313,7 +313,7 @@ export default function ParcelCreate() {
                                                 <label htmlFor="amount" className="form-label">วันที่เข้ารับพัสดุ</label><br />
                                                 <DatePicker
                                                     className='form-control'
-                                                    selected={planning.date ? new Date(planning.date) : new Date()}
+                                                    selected={parcel.date ? new Date(parcel.date) : new Date()}
                                                     onChange={(date: any) => {
                                                         const newParcels = [...planning.parcels]
                                                         newParcels[index].date = date.toISOString().split('T')[0]
