@@ -1,7 +1,6 @@
 import Layout from '@/components/Layout'
 import Loading from '@/components/Loading'
-import { getDataById, getMediaDataById, getStartAndStopPoints, putData } from '@/pages/api/callApi'
-import dayjs from 'dayjs'
+import { getDataById, getMediaDataById, getStartAndStopPoints, getStocKDataFromPeaCode, putData } from '@/pages/api/callApi'
 import { useRouter } from 'next/router'
 import React from 'react'
 import DatePicker from "react-datepicker";
@@ -42,6 +41,22 @@ export default function ParcelPlanningDetail() {
     }
   }
 
+  const findPeaData = async (e: any, peaCode: string, index: number, peaIndex: number) => {
+    e.preventDefault()
+    const data = await getStocKDataFromPeaCode(peaCode)
+    console.log(`data`, data)
+    if (data && data.result) {
+      const description = data.result.description
+      const newParcels = [...planning.parcels]
+      newParcels[index].peas[peaIndex].description = description
+      setPlanning({ ...planning, parcels: newParcels })
+    } else {
+      const newParcels = [...planning.parcels]
+      newParcels[index].peas[peaIndex].description = ''
+      setPlanning({ ...planning, parcels: newParcels })
+    }
+  }
+
   React.useEffect(() => {
     if (planning) {
       setIsLoading(false)
@@ -71,6 +86,12 @@ export default function ParcelPlanningDetail() {
               }}>
                 <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;Download XLSX
               </button>
+              &nbsp;&nbsp;
+              {planning.status !== 'draft' && <button className="btn btn-primary" onClick={async () => {
+                router.push(`/dashboard/parcel-planning/pdf/${id}`)
+              }}>
+                <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;Print PDF
+              </button>}
             </div>
             <form onSubmit={submitForm}>
               <div className="mb-3">
@@ -193,6 +214,11 @@ export default function ParcelPlanningDetail() {
                             const newNumberOfVehicles = [...parcel.numberOfVehicles]
                             newParcels[index].type = parseInt(value)
                             newParcels[index].numberOfVehicles = newNumberOfVehicles
+                            newNumberOfVehicles.forEach((vehicle, vehicleIndex) => {
+                              if (vehicleIndex !== parseInt(value)) {
+                                newNumberOfVehicles[vehicleIndex].number = 0
+                              }
+                            })
                             setPlanning({ ...planning, parcels: newParcels })
                           }}
                           value={parcel.type}
@@ -260,7 +286,7 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.centralPrice}
+                          value={parcel.peas[0].centralPrice}
                           disabled={true}
                         />
                       </div>
@@ -271,12 +297,94 @@ export default function ParcelPlanningDetail() {
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.centralPrice * parcel.numberOfVehicles[parcel.type].number}
+                          value={parcel.peas[0].centralPrice * parcel.peas[0].numberOfVehicles[parcel.type].number}
                           disabled={true}
                         />
                       </div>
                     </div>
-                    <div className='col-4'>
+                    <div className='card card-body m-2'>
+                      {parcel.peas.map((peaObj: any, peaIndex: number) => (<React.Fragment key={peaIndex}>
+                        <div className='row'>
+                          <div className='col-4'>
+                            <div className="mb-3">
+                              <label htmlFor="amount" className="form-label">รหัส PEA</label>
+                              <div className="input-group">
+                                <input
+                                  type="text"
+                                  className="form-control"
+                                  value={peaObj.peaCode}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    const newParcels = [...planning.parcels]
+                                    newParcels[index].peas[peaIndex].peaCode = value
+                                    setPlanning({ ...planning, parcels: newParcels })
+                                  }}
+                                />
+                                <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={(e) => findPeaData(e, peaObj.peaCode, index, peaIndex)}>
+                                  <i className="bi bi-search"></i>
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                          <div className='col-3'>
+                            <div className="mb-3">
+                              <label htmlFor="amount" className="form-label">จำนวนพัสดุ</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                value={peaObj.quantity}
+                                onChange={(e) => {
+                                  const value = e.target.value
+                                  const newParcels = [...planning.parcels]
+                                  newParcels[index].peas[peaIndex].quantity = value === '' ? 0 : parseInt(value)
+                                  setPlanning({ ...planning, parcels: newParcels })
+                                }}
+                              />
+                            </div>
+                          </div>
+                          <div className='col-4'>
+                            <div className="mb-4">
+                              <label htmlFor="amount" className="form-label">คำอธิบาย</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                value={peaObj.description}
+                                disabled={true}
+                              />
+                            </div>
+                          </div>
+                          <div className='col-1'>
+                            <div style={{ marginTop: '5px' }}></div>
+                            {
+                              parcel.peas.length > 1 && <button className='btn btn-danger mt-4' onClick={(e) => {
+                                e.preventDefault()
+                                const newParcels = [...planning.parcels]
+                                newParcels[index].peas.splice(peaIndex, 1)
+                                setPlanning({ ...planning, parcels: newParcels })
+                              }}>
+                                <i className="bi bi-trash"></i>
+                              </button>
+                            }
+                          </div>
+                        </div>
+                      </React.Fragment>))}
+                      <div className='col-12'>
+                        <div className='d-flex justify-content-end'>
+                          <button type="button" className="btn btn-primary" onClick={() => {
+                            const newParcels = [...planning.parcels]
+                            newParcels[index].peas.push({
+                              peaCode: '',
+                              quantity: 0,
+                              description: ''
+                            })
+                            setPlanning({ ...planning, parcels: newParcels })
+                          }}>
+                            <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่มรหัส
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                    {/* <div className='col-4'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">รหัสพัสดุ</label>
                         <input
@@ -325,14 +433,14 @@ export default function ParcelPlanningDetail() {
                           }}
                         />
                       </div>
-                    </div>
+                    </div> */}
                     <div className='col-4'>
                       <div className="mb-3">
                         <label htmlFor="amount" className="form-label">ระยะทาง (กิโลเมตร)</label>
                         <input
                           type="text"
                           className="form-control"
-                          value={parcel.distance}
+                          value={parcel.peas[0].distance}
                           disabled={true}
                         />
                       </div>

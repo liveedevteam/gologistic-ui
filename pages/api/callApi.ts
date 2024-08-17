@@ -149,3 +149,16 @@ export const getStartAndStopPoints = async (type: string) => {
     return err;
   }
 }
+
+export const getStocKDataFromPeaCode = async (peaCode: string) => {
+  const url = `${process.env.NEXT_PUBLIC_API_URL}/stocks/pea-code/${peaCode}`;
+  const headers = {
+    Authorization: `Bearer ${window.localStorage.getItem("token")}`,
+  };
+  try {
+    const res = await axios.get(url, { headers });
+    return res.data;
+  } catch (error: any) {
+    return null;
+  }
+}

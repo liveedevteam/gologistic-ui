@@ -2,7 +2,7 @@ import Layout from '@/components/Layout'
 import { useRouter } from 'next/router'
 import React, { useEffect } from 'react'
 import DatePicker from "react-datepicker";
-import { getStartAndStopPoints, postData } from '@/pages/api/callApi'
+import { getStartAndStopPoints, getStocKDataFromPeaCode, postData } from '@/pages/api/callApi'
 
 export default function ParcelCreate() {
     const [planning, setPlanning] = React.useState({
@@ -14,7 +14,11 @@ export default function ParcelCreate() {
             source: '',
             destination: '',
             distance: 0,
-            peaCode: '',
+            peas: [{
+                peaCode: '',
+                quantity: 0,
+                description: ''
+            }],
             quantity: 0,
             numberOfVehicles: [
                 {
@@ -40,6 +44,22 @@ export default function ParcelCreate() {
     const [startPoints, setStartPoints] = React.useState([])
     const [endPoints, setEndPoints] = React.useState([])
     const router = useRouter()
+
+    const findPeaData = async (e: any, peaCode: string, index: number, peaIndex: number) => {
+        e.preventDefault()
+        const data = await getStocKDataFromPeaCode(peaCode)
+        console.log(`data`, data)
+        if (data && data.result) {
+            const description = data.result.description
+            const newParcels = [...planning.parcels]
+            newParcels[index].peas[peaIndex].description = description
+            setPlanning({ ...planning, parcels: newParcels })
+        } else {
+            const newParcels = [...planning.parcels]
+            newParcels[index].peas[peaIndex].description = ''
+            setPlanning({ ...planning, parcels: newParcels })
+        }
+    }
 
     useEffect(() => {
         const fetchStartPoints = async () => {
@@ -174,6 +194,12 @@ export default function ParcelCreate() {
                                                         const newNumberOfVehicles = [...parcel.numberOfVehicles]
                                                         newParcels[index].type = parseInt(value)
                                                         newParcels[index].numberOfVehicles = newNumberOfVehicles
+                                                        // set zero to all number of vehicles except the selected one
+                                                        newNumberOfVehicles.forEach((vehicle, vehicleIndex) => {
+                                                            if (vehicleIndex !== parseInt(value)) {
+                                                                newNumberOfVehicles[vehicleIndex].number = 0
+                                                            }
+                                                        })
                                                         setPlanning({ ...planning, parcels: newParcels })
                                                     }}
                                                 >
@@ -228,36 +254,86 @@ export default function ParcelCreate() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className='col-4'>
-                                            <div className="mb-3">
-                                                <label htmlFor="amount" className="form-label">รหัสพัสดุ</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={planning.parcels[index].peaCode}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value
+                                        <div className='card card-body m-2'>
+                                            {parcel.peas.map((peaObj, peaIndex) => (<React.Fragment key={peaIndex}>
+                                                <div className='row'>
+                                                    <div className='col-4'>
+                                                        <div className="mb-3">
+                                                            <label htmlFor="amount" className="form-label">รหัส PEA</label>
+                                                            <div className="input-group">
+                                                                <input
+                                                                    type="text"
+                                                                    className="form-control"
+                                                                    value={peaObj.peaCode}
+                                                                    onChange={(e) => {
+                                                                        const value = e.target.value
+                                                                        const newParcels = [...planning.parcels]
+                                                                        newParcels[index].peas[peaIndex].peaCode = value
+                                                                        setPlanning({ ...planning, parcels: newParcels })
+                                                                    }}
+                                                                />
+                                                                <button className="btn btn-outline-secondary" type="button" id="button-addon2" onClick={(e) => findPeaData(e, peaObj.peaCode, index, peaIndex)}>
+                                                                    <i className="bi bi-search"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className='col-3'>
+                                                        <div className="mb-3">
+                                                            <label htmlFor="amount" className="form-label">จำนวนพัสดุ</label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                value={peaObj.quantity}
+                                                                onChange={(e) => {
+                                                                    const value = e.target.value
+                                                                    const newParcels = [...planning.parcels]
+                                                                    newParcels[index].peas[peaIndex].quantity = value === '' ? 0 : parseInt(value)
+                                                                    setPlanning({ ...planning, parcels: newParcels })
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className='col-4'>
+                                                        <div className="mb-4">
+                                                            <label htmlFor="amount" className="form-label">คำอธิบาย</label>
+                                                            <input
+                                                                type="text"
+                                                                className="form-control"
+                                                                value={peaObj.description}
+                                                                disabled={true}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div className='col-1'>
+                                                        <div style={{ marginTop: '5px' }}></div>
+                                                        {
+                                                            parcel.peas.length > 1 && <button className='btn btn-danger mt-4' onClick={(e) => {
+                                                                e.preventDefault()
+                                                                const newParcels = [...planning.parcels]
+                                                                newParcels[index].peas.splice(peaIndex, 1)
+                                                                setPlanning({ ...planning, parcels: newParcels })
+                                                            }}>
+                                                                <i className="bi bi-trash"></i>
+                                                            </button>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </React.Fragment>))}
+                                            <div className='col-12'>
+                                                <div className='d-flex justify-content-end'>
+                                                    <button type="button" className="btn btn-primary" onClick={() => {
                                                         const newParcels = [...planning.parcels]
-                                                        newParcels[index].peaCode = value
+                                                        newParcels[index].peas.push({
+                                                            peaCode: '',
+                                                            quantity: 0,
+                                                            description: ''
+                                                        })
                                                         setPlanning({ ...planning, parcels: newParcels })
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className='col-4'>
-                                            <div className="mb-3">
-                                                <label htmlFor="amount" className="form-label">จำนวนพัสดุ</label>
-                                                <input
-                                                    type="text"
-                                                    className="form-control"
-                                                    value={parcel.quantity}
-                                                    onChange={(e) => {
-                                                        const value = e.target.value
-                                                        const newParcels = [...planning.parcels]
-                                                        newParcels[index].quantity = value === '' ? 0 : parseInt(value)
-                                                        setPlanning({ ...planning, parcels: newParcels })
-                                                    }}
-                                                />
+                                                    }}>
+                                                        <i className="bi bi-plus-circle"></i>&nbsp;&nbsp;เพิ่มรหัส
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div className='col-4'>
@@ -335,7 +411,11 @@ export default function ParcelCreate() {
                                         source: '',
                                         destination: '',
                                         distance: 0,
-                                        peaCode: '',
+                                        peas: [{
+                                            peaCode: '',
+                                            quantity: 0,
+                                            description: ''
+                                        }],
                                         quantity: 0,
                                         numberOfVehicles: [
                                             {
