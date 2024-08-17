@@ -124,6 +124,8 @@ const MyDocument = React.forwardRef((props: any, ref: any) => {
     )
 })
 
+MyDocument.displayName = 'MyDocument';
+
 export default function ParcelPlanningQuotation() {
     const [planning, setPlanning] = React.useState(null) as any
     const [startPoints, setStartPoints] = React.useState([])
