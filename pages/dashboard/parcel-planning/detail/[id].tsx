@@ -530,7 +530,27 @@ export default function ParcelPlanningDetail() {
                     source: '',
                     destination: '',
                     distance: 0,
-                    peaCode: '',
+                    peas: [{
+                      peaCode: '',
+                      description: '',
+                      quantity: 0,
+                      distance: 0,
+                      centralPrice: 0,
+                      numberOfVehicles: [
+                        {
+                          "type": "6 ล้อ",
+                          "number": 0
+                        },
+                        {
+                          "type": "10 ล้อ",
+                          "number": 0
+                        },
+                        {
+                          "type": "18 ล้อ",
+                          "number": 0
+                        }
+                      ]
+                    }],
                     quantity: 0,
                     numberOfVehicles: [
                       {
