@@ -1,0 +1,41 @@
+// First import Bootstrap functions and variables
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+// Override Bootstrap variables
+$primary: #7600b2;
+$secondary: #aa00ff;
+$dark: #7600b2;
+$light: #aa00ff;
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    "primary": $primary,
+    "secondary": $secondary,
+    "dark": $dark,
+    "light": $light
+  )
+);
+
+// Finally import the rest of Bootstrap
+@import "bootstrap/scss/bootstrap";
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  color: $dark;
+}
+
+.card-header {
+  background-color: $dark;
+  color: white;
+}
+
+.input-group-text {
+  background-color: $dark;
+  color: white;
+}   

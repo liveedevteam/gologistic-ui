@@ -5,7 +5,7 @@ body {
   font-family: "Prompt", sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #333;
+  color: #9500ae;
 }
 
 .min-vh-100 {
@@ -22,7 +22,7 @@ body {
   width: 350px;
   margin-left: -350px;
   transition: margin 0.25s ease-out;
-  background-color: #333;
+  background-color: #9500ae;
 }
 
 #page-content-wrapper {

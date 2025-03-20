@@ -158,7 +158,7 @@ export default function ParcelPlanningDetail() {
                   </select>
                 </div>
               </div>
-              {planning.parcels.map((parcel: any, index: number) => (<div className='card mt-3' key={index}>
+              {planning && planning.parcels && planning.parcels.map((parcel: any, index: number) => (<div className='card mt-3' key={index}>
                 <div className='card-header'>
                   <div className='d-flex'>
                     <div className='flex-grow-1'>พัสดุ {index + 1}</div>
